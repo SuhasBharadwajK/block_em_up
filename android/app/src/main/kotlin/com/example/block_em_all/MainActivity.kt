@@ -1,4 +1,4 @@
-package com.example.block_em_all
+package com.example.block_em_up
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
