@@ -7,10 +7,13 @@ class AddNumberToBlockForm extends StatefulWidget {
 }
 
 class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
-  final _formKey = GlobalKey<FormState>();
+  var _formKey = GlobalKey<FormState>();
+  FocusNode phoneNumberFocusNode = FocusNode();
   
   @override
   Widget build(BuildContext context) {
+    // phoneNumberFocusNode.addListener(_onOnFocusNodeEvent);
+      
     return Form(
       key: _formKey,
       child: Column(
@@ -19,6 +22,23 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             padding: EdgeInsets.all(12),
             alignment: Alignment.center,
             child: TextFormField(
+              focusNode: phoneNumberFocusNode,
+              keyboardType: TextInputType.phone,
+              decoration: new InputDecoration(
+                labelText: "Enter the number",
+                labelStyle: TextStyle(
+                  color: phoneNumberFocusNode.hasFocus ? Colors.green : Colors.blue,
+                ),
+                fillColor: Colors.white,
+                border: new OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                focusedBorder:OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
               validator: numberValidator,
               style: TextStyle(
                 fontSize: 18,
@@ -47,6 +67,12 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
         ]
       )
     );
+  }
+
+  _onOnFocusNodeEvent() {
+    setState(() {
+      // Re-renders
+    });
   }
 
   String numberValidator(String value) {
