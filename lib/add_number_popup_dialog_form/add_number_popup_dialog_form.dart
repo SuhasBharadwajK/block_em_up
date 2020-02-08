@@ -9,11 +9,23 @@ class AddNumberToBlockForm extends StatefulWidget {
 class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   var _formKey = GlobalKey<FormState>();
   FocusNode phoneNumberFocusNode = FocusNode();
+  final _text = TextEditingController();
+  bool _isEmpty = false;
+  bool _isTouched = false;
+  bool _isInvalidNumber = false;
+
+  String get _invalidMessage {
+    return this._text.text.isEmpty ? 'Please enter some text' : this._isInvalidNumber ? 'Please enter a valid number' : null;
+  }
+
+  AddNumberToBlockFormState() {
+    this._text.addListener(_onTextChangeEventHandler);
+  }
   
   @override
   Widget build(BuildContext context) {
     // phoneNumberFocusNode.addListener(_onOnFocusNodeEvent);
-      
+
     return Form(
       key: _formKey,
       child: Column(
@@ -23,15 +35,20 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             alignment: Alignment.center,
             child: TextFormField(
               focusNode: phoneNumberFocusNode,
+              controller: _text,
               keyboardType: TextInputType.phone,
               decoration: new InputDecoration(
                 labelText: "Enter the number",
                 labelStyle: TextStyle(
-                  color: phoneNumberFocusNode.hasFocus ? Colors.green : Colors.blue,
+                  color: this._getInputColor(),
                 ),
                 fillColor: Colors.white,
                 border: new OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                  borderSide: BorderSide(color: Colors.black, width: 2.0),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                enabledBorder: new OutlineInputBorder(
+                  borderSide: BorderSide(color: this._isEmpty && this._isTouched ? Colors.red : Colors.blue, width: 2.0),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 focusedBorder:OutlineInputBorder(
@@ -51,14 +68,9 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             alignment: Alignment.bottomCenter,
             child: RaisedButton(
               onPressed: () {
-                // Validate returns true if the form is valid, otherwise false.
                 if (_formKey.currentState.validate()) {
                   // If the form is valid, display a snackbar. In the real world,
                   // you'd often call a server or save the information in a database.
-
-                  Scaffold
-                      .of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
                 }
               },
               child: Text('Submit'),
@@ -69,17 +81,31 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
     );
   }
 
-  _onOnFocusNodeEvent() {
+  _onTextChangeEventHandler() {
+    if (this._isTouched) {
+      this._formKey.currentState.validate();
+    }
+
     setState(() {
-      // Re-renders
+      this._isEmpty = this._text.text.isEmpty;
+
+      if (this._text.text.isNotEmpty) {
+        if (!this._isTouched) {
+          this._isTouched = true;
+        }
+      }
     });
   }
 
   String numberValidator(String value) {
-    if (value.isEmpty) {
-      return 'Please enter some text';
+    if (this._text.text.isEmpty || this._isInvalidNumber) {
+      return this._invalidMessage;
     }
 
     return null;
+  }
+
+  MaterialColor _getInputColor() {
+    return this._isEmpty && this._isTouched ? Colors.red : Colors.blue;
   }
 }
