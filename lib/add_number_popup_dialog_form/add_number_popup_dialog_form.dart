@@ -2,14 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddNumberToBlockForm extends StatefulWidget {
+  final Function(String) addNewNumberCallback;
+  AddNumberToBlockForm(this.addNewNumberCallback);
+  
   @override
-  State<StatefulWidget> createState() => AddNumberToBlockFormState();
+  State<StatefulWidget> createState() => AddNumberToBlockFormState(addNewNumberCallback);
 }
 
 class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
+  final Function(String) addNewNumberCallback;
+
   var _formKey = GlobalKey<FormState>();
   FocusNode _textFieldFocusNode = FocusNode();
-  final _text = TextEditingController();
+  final _textController = TextEditingController();
+
   bool _isEmpty = false;
   bool _isTouched = false;
   bool _isInvalidNumber = false;
@@ -17,11 +23,11 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   bool _didKeydownHappen = false;
 
   String get _invalidMessage {
-    return this._text.text.isEmpty ? 'Please enter some text' : this._isInvalidNumber ? 'Please enter a valid number' : null;
+    return this._textController.text.isEmpty ? 'Please enter some text' : this._isInvalidNumber ? 'Please enter a valid number' : null;
   }
 
-  AddNumberToBlockFormState() {
-    this._text.addListener(_onTextChangeEventHandler);
+  AddNumberToBlockFormState(this.addNewNumberCallback) {
+    this._textController.addListener(_onTextChangeEventHandler);
     _textFieldFocusNode.addListener(_onFocusNodeEvent);
   }
   
@@ -36,7 +42,7 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             alignment: Alignment.center,
             child: TextFormField(
               focusNode: _textFieldFocusNode,
-              controller: _text,
+              controller: _textController,
               keyboardType: TextInputType.phone,
               decoration: new InputDecoration(
                 labelText: "Enter the number",
@@ -45,7 +51,7 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
                 ),
                 fillColor: Colors.white,
                 border: new OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black, width: 2.0),
+                  borderSide: BorderSide(width: 2.0),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 enabledBorder: new OutlineInputBorder(
@@ -70,15 +76,15 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             child: RaisedButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  // If the form is valid, display a snackbar. In the real world,
-                  // you'd often call a server or save the information in a database.
+                  this.addNewNumberCallback(this._textController.text);
+                  Navigator.pop(context);
                 }
                 else {
                   this._didKeydownHappen = true;
                   FocusScope.of(context).requestFocus(this._textFieldFocusNode);
                 }
               },
-              child: Text('Submit'),
+              child: Text('Block Number'),
             ),
           ),
         ]
@@ -101,9 +107,9 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
     }
 
     setState(() {
-      this._isEmpty = this._text.text.isEmpty;
+      this._isEmpty = this._textController.text.isEmpty;
 
-      if (this._text.text.isNotEmpty) {
+      if (this._textController.text.isNotEmpty) {
         this._didKeydownHappen = true;
 
         if (!this._isTouched) {
@@ -114,7 +120,7 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   }
 
   String numberValidator(String value) {
-    if (this._text.text.isEmpty || this._isInvalidNumber) {
+    if (this._textController.text.isEmpty || this._isInvalidNumber) {
       return this._invalidMessage;
     }
 

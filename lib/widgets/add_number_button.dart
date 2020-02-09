@@ -3,7 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddNumberButton extends StatelessWidget {
-  AddNumberButton({Key key}) : super(key: key);
+  final Function(String) addNewNumberCallback;
+
+  AddNumberButton(this.addNewNumberCallback ,{Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +19,7 @@ class AddNumberButton extends StatelessWidget {
   }
 
   void addNumber(BuildContext context) {
-
-    Dialog simpleDialog = Dialog(
+    Dialog addNewNumberDialog = Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
@@ -28,12 +29,12 @@ class AddNumberButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            AddNumberToBlockForm(),
+            AddNumberToBlockForm(addNewNumberCallback),
           ],
         ),
       ),
     );
 
-    showDialog(context: context, builder: (BuildContext context) => simpleDialog);
+    showDialog(context: context, builder: (BuildContext context) => addNewNumberDialog);
   }
 }
