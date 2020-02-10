@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AddNumberButton extends StatelessWidget {
   final Function(String) addNewNumberCallback;
 
-  AddNumberButton(this.addNewNumberCallback ,{Key key}) : super(key: key);
+  AddNumberButton(this.addNewNumberCallback, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
