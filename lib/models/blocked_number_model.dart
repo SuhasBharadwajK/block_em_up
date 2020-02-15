@@ -12,7 +12,6 @@ class BlockedNumber extends DataEntity {
   @override
   Map<String, dynamic> toMap() {
     return {
-      'id': this.id,
       'blockingPattern': this.blockingPattern,
       'isBlockingActive': this.isBlockingActive ? 1 : 0,
       'dateCreated': this.dateCreated.toIso8601String(),
