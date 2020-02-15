@@ -14,7 +14,7 @@ class BlockedNumber extends DataEntity {
     return {
       'id': this.id,
       'blockingPattern': this.blockingPattern,
-      'isBlockingActive': this.isBlockingActive,
+      'isBlockingActive': this.isBlockingActive ? 1 : 0,
       'dateCreated': this.dateCreated.toIso8601String(),
       'dateModified': this.dateModified.toIso8601String(),
     };
