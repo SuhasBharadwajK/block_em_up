@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:block_em_up/services/blocked_number_service.dart';
+import 'package:block_em_up/services/data_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'constants.dart';
 import 'models/blocked_number_model.dart';
 import 'widgets/add_number_button.dart';
 
@@ -16,7 +18,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   var _blockedNumbers = List<BlockedNumber>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
   BlockedNumbersService _blockedNumbersService;
-  static const methodChannel = const MethodChannel("com.example.block_em_up");
+  static const methodChannel = const MethodChannel(MethodChannelNames.BlockingServiceChannel);
 
   BlockEmAllAppState() {
     this._blockedNumbersService = BlockedNumbersService();
@@ -30,6 +32,8 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   void initState() {
     super.initState();
     this.getBlockedNumbersCallback().then((blockedNumbers) {
+      refreshRogueRoster(blockedNumbers);
+
       this.setState(() {
         this._blockedNumbers = blockedNumbers;
       });
@@ -51,11 +55,18 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   void addNewNumberCallback(String numberOrPatternToBlock) {
     this._blockedNumbersService.insertNewPatternOrNumber(numberOrPatternToBlock).then((insertedId) {
       this.getBlockedNumbersCallback().then((blockedNumbers) {
+
+        refreshRogueRoster([blockedNumbers.last]);
+
         this.setState(() {
           this._blockedNumbers = blockedNumbers;
         });
       });
     });
+  }
+
+  void refreshRogueRoster(List<BlockedNumber> blockedNumbers) {
+    methodChannel.invokeMethod(AndroidMethodNames.RefreshBlockList, {"blockedNumbers": blockedNumbers.map((b) => {"blockingPattern": b.blockingPattern, "isBlockingActive": b.isBlockingActive}).toList()});
   }
 
   Future<List<BlockedNumber>> getBlockedNumbersCallback() async {
@@ -85,7 +96,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
 
   void startBackgroundService() async {
     if (Platform.isAndroid) {
-      await methodChannel.invokeMethod("startService");
+      await methodChannel.invokeMethod(AndroidMethodNames.StartBlockingService, [DataService.dbName, DataService.tableName]);
     }
   }
 }

@@ -12,13 +12,27 @@ import android.telephony.TelephonyManager;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.block_em_all.data.DBHelper;
+import com.example.block_em_all.models.BlockedNumber;
+
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class IncomingCallHandler extends BroadcastReceiver {
 
+    private ArrayList<BlockedNumber> blockedNumbers;
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        DBHelper dbHelper = DBHelper.getCurrentInstance(context);
+
         try {
+            if (dbHelper == null) {
+                dbHelper = new DBHelper(context);
+            }
+
+            this.blockedNumbers = dbHelper.getAllBlockedNumbers();
+
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)) {
                 TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -45,15 +59,21 @@ public class IncomingCallHandler extends BroadcastReceiver {
     private void callStateChangeHandler(int state, String phoneNumber, Context context) {
         try {
             TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
-            if (phoneNumber != null && !phoneNumber.isEmpty() && state != 0) {
-                if (context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        telecomManager.endCall();
-                    }
-                }
+            if (phoneNumber != null && !phoneNumber.isEmpty() && state != 0 && this.isNumberBlocked(phoneNumber) && context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                telecomManager.endCall();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isNumberBlocked(String incomingNumber) {
+        for (BlockedNumber blockedNumber: this.blockedNumbers) {
+            if (blockedNumber.isBlockingActive && (incomingNumber.startsWith(blockedNumber.blockingPattern) || incomingNumber.equals(blockedNumber.blockingPattern))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

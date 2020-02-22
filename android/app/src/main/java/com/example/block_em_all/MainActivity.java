@@ -9,8 +9,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.example.block_em_all.data.DBHelper;
+import com.example.block_em_all.models.BlockedNumber;
+
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -48,11 +52,21 @@ public class MainActivity extends FlutterActivity {
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
 
-    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "com.example.block_em_up").setMethodCallHandler(
+    new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "com.example.block_em_up/startBlocking").setMethodCallHandler(
       (call, result) -> {
         if (call.method.equals("startService")) {
+          ArrayList<String> arguments = (ArrayList<String>) call.arguments;
+          DBHelper.DatabaseName = arguments.get(0);
+          DBHelper.TableName = arguments.get(1);
+
           startService();
-          result.success("Hooray! Service started");
+          result.success("Successfully started the background service!");
+        } else if (call.method.equals("refreshBlockList")) {
+          ArrayList<HashMap> blockedNumbersMap = (ArrayList<HashMap>)((HashMap) call.arguments).get("blockedNumbers");
+
+          refreshBlockedNumbers(blockedNumbersMap);
+
+          result.success("Successfully added to the block list!");
         }
       }
     );
@@ -65,6 +79,14 @@ public class MainActivity extends FlutterActivity {
     }
     else {
       startService(serviceIntent);
+    }
+  }
+
+  private void refreshBlockedNumbers(ArrayList<HashMap> blockedNumbersMap) {
+    DBHelper helper = DBHelper.getCurrentInstance(this);
+
+    for (HashMap value: blockedNumbersMap) {
+      helper.appendNumber(new BlockedNumber((String)value.get("blockingPattern"), (boolean) value.get("isBlockingActive")));
     }
   }
 }
