@@ -3,8 +3,9 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DataService {
-  final String dbCreateQuery = "CREATE TABLE BlockedNumbers(id INTEGER PRIMARY KEY AUTOINCREMENT, blockingPattern TEXT, isBlockingActive INTEGER, dateCreated TEXT, dateModified TEXT)";
-  final String dbName = "blocked_numbers_database.db";
+  static String dbName = "blocked_numbers_database.db";
+  static String tableName = "BlockedNumbers";
+  final String dbCreateQuery = "CREATE TABLE " + tableName + "(id INTEGER PRIMARY KEY AUTOINCREMENT, blockingPattern TEXT, isBlockingActive INTEGER, dateCreated TEXT, dateModified TEXT)";
   static Database _db;
 
   Future<Database> get db async {
@@ -15,7 +16,7 @@ class DataService {
 
   Future<Database> initDb() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, this.dbName);
+    String path = join(databasesPath, dbName);
 
     var theDb = await openDatabase(path, version: 1,
       onCreate: (Database db, int version) async {
