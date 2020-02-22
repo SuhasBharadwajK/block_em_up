@@ -29,11 +29,6 @@ public class MainActivity extends FlutterActivity {
     );
   }
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
-
   private void startService() {
     serviceIntent = new Intent(MainActivity.this, BlockingService.class);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
