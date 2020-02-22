@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:block_em_up/services/blocked_number_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'models/blocked_number_model.dart';
 import 'widgets/add_number_button.dart';
 
@@ -13,6 +16,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   var _blockedNumbers = List<BlockedNumber>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
   BlockedNumbersService _blockedNumbersService;
+  static const methodChannel = const MethodChannel("com.example.block_em_up");
 
   BlockEmAllAppState() {
     this._blockedNumbersService = BlockedNumbersService();
@@ -34,6 +38,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
 
   @override
   Widget build(BuildContext context) {
+    this.startBackgroundService();
     return Scaffold(
       appBar: AppBar(
         title: const Text('The Blocked Ones'),
@@ -76,5 +81,11 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     ), onTap: () {
       // TODO: Implement this.
     },);
+  }
+
+  void startBackgroundService() async {
+    if (Platform.isAndroid) {
+      await methodChannel.invokeMethod("startService");
+    }
   }
 }
