@@ -117,9 +117,43 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
           caption: "Delete",
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () => this._deleteBlockedNumber(blockedNumber),
+          onTap: () => this._showDeleteConfirmationDialog(blockedNumber),
         )
       ],
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BlockedNumber number) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete ${number.blockingPattern}?"),
+          content: Text("Are you sure you want to delete ${number.blockingPattern} from the list of your blocked numbers?"),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              }, 
+              child: const Text(
+                "No", 
+                style: TextStyle(
+                  color: Colors.red
+                ),
+              ),
+            ),
+            RaisedButton(
+              onPressed: () {
+                this._deleteBlockedNumber(number);
+                Navigator.of(context).pop();
+              },
+              color: Colors.red,
+              child: const Text("Yes"),
+              elevation: 4,
+            )
+          ],
+        );
+      }
     );
   }
 
