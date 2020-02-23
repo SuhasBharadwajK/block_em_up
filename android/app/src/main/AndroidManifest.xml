@@ -14,6 +14,7 @@
     <application
         android:name="com.example.block_em_all.BlockEmUpApp"
         android:label="Block 'em up"
+        android:enabled="true"
         android:icon="@mipmap/ic_launcher">
         <service android:name="com.example.block_em_all.BlockingService" android:exported="true" android:enabled="true" />
         <activity
@@ -29,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.example.block_em_all.telephony.IncomingCallHandler" android:enabled="true" android:exported="true">
+        <receiver android:name="com.example.block_em_all.telephony.IncomingCallHandler" android:enabled="true" android:exported="true" android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
