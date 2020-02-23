@@ -32,4 +32,13 @@ class BlockedNumbersService {
       );
     });
   }
+
+  Future<int> deleteBlockedNumber({int id, String number}) async {
+    if (id == null) {
+      var allNumbers = await this.getBlockedNumbers();
+      id = allNumbers.firstWhere((n) => n.blockingPattern == number, orElse: () => null)?.id;
+    }
+
+    return await this._dataService.delete(id, this._tableName);
+  }
 }

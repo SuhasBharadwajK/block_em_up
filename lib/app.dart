@@ -79,12 +79,12 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     return ListView.builder(
       itemCount: this._blockedNumbers.length,
       itemBuilder: (context, i) {
-        return this._buildRow(this._blockedNumbers[i].blockingPattern);
+        return this._buildRow(this._blockedNumbers[i]);
       }
     );
   }
 
-  Widget _buildRow(String blockedNumber) {
+  Widget _buildRow(BlockedNumber blockedNumber) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
@@ -106,7 +106,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
               foregroundColor: Colors.white,
             ),
             title: Text(
-              blockedNumber,
+              blockedNumber.blockingPattern,
               style: _biggerFont,
             ),
           ),
@@ -117,14 +117,18 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
           caption: "Delete",
           color: Colors.red,
           icon: Icons.delete,
-          onTap: this._deleteBlockedNumber,
+          onTap: () => this._deleteBlockedNumber(blockedNumber),
         )
       ],
     );
   }
 
-  void _deleteBlockedNumber() {
-    // TODO: Implement this
+  void _deleteBlockedNumber(BlockedNumber number) {
+    this._blockedNumbersService.deleteBlockedNumber(id: number.id).then((rowsAffected) {
+      this.setState(() {
+        this._blockedNumbers.removeWhere((n) => n.id == number.id);
+      });
+    });
   }
 
   void _startBackgroundService() async {

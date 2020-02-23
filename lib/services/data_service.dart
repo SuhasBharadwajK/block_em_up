@@ -34,4 +34,8 @@ class DataService {
   Future<int> insert(DataEntity dataEntity, String tableName) async {
     return await (await this.db).insert(tableName, dataEntity.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
+
+  Future<int> delete(int id, String tableName) async {
+    return await (await this.db).delete(tableName, where: "id = ?", whereArgs: [id]);
+  }
 }
