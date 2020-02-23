@@ -16,13 +16,15 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   FocusNode _textFieldFocusNode = FocusNode();
   final _textController = TextEditingController();
 
+  final RegExp validNumberExpression = new RegExp(r"^\+?[0-9]+$", caseSensitive: false, multiLine: false);
+
   bool _isEmpty = false;
   bool _isTextBoxFocused = false;
   bool _didKeydownHappen = false;
   bool _isSubmitted = false;
 
   bool get _isInvalidNumber {
-    return false;
+    return this._textController.text.isEmpty || !validNumberExpression.hasMatch(this._textController.text);
   }
 
   String get _invalidMessage {
@@ -129,6 +131,6 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   }
 
   MaterialColor _getInputColor() {
-    return this._isEmpty && (this._didKeydownHappen || this._isSubmitted) ? Colors.red : this._isTextBoxFocused ? Colors.blue : Colors.grey;
+    return (this._isEmpty || this._isInvalidNumber) && (this._didKeydownHappen || this._isSubmitted) ? Colors.red : this._isTextBoxFocused ? Colors.blue : Colors.grey;
   }
 }
