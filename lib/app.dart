@@ -5,6 +5,8 @@ import 'package:block_em_up/services/data_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:random_color/random_color.dart';
 import 'constants.dart';
 import 'models/blocked_number_model.dart';
 import 'widgets/add_number_button.dart';
@@ -42,7 +44,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
 
   @override
   Widget build(BuildContext context) {
-    this.startBackgroundService();
+    this._startBackgroundService();
     return Scaffold(
       appBar: AppBar(
         title: const Text('The Blocked Ones'),
@@ -75,28 +77,64 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
 
   Widget _buildBlockedNumbersList() {
     return ListView.builder(
-      itemCount: this._blockedNumbers.length * 2,
+      itemCount: this._blockedNumbers.length,
       itemBuilder: (context, i) {
-        if (i.isOdd) return Divider();
-        
-        final index = i ~/ 2;
-        return this._buildRow(this._blockedNumbers[index].blockingPattern);
+        return this._buildRow(this._blockedNumbers[i].blockingPattern);
       }
     );
   }
 
   Widget _buildRow(String blockedNumber) {
-    return ListTile(title: Text(
-      blockedNumber,
-      style: _biggerFont,
-    ), onTap: () {
-      // TODO: Implement this.
-    },);
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white, 
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.grey, 
+            )
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: this._getRandomColor(),
+              child: Text('#'),
+              foregroundColor: Colors.white,
+            ),
+            title: Text(
+              blockedNumber,
+              style: _biggerFont,
+            ),
+          ),
+        ),
+      ),
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: "Delete",
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: this._deleteBlockedNumber,
+        )
+      ],
+    );
   }
 
-  void startBackgroundService() async {
+  void _deleteBlockedNumber() {
+    // TODO: Implement this
+  }
+
+  void _startBackgroundService() async {
     if (Platform.isAndroid) {
       await methodChannel.invokeMethod(AndroidMethodNames.StartBlockingService, [DataService.dbName, DataService.tableName]);
     }
+  }
+
+  Color _getRandomColor() {
+    RandomColor _randomColor = RandomColor();
+    return _randomColor.randomColor(colorHue: ColorHue.red);
   }
 }
