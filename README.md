@@ -1,6 +1,6 @@
 # block_em_up
 
-What's the point of this app? Nothing. The only thing it'll do is block every number that starts with the number or numbers you specify.
+What's the point of this app? Nothing, really. The only thing it'll do is block every number that starts with the number or numbers you specify.
 
 Still want to use it? Sure. Find the ```.apk``` file from the folder with the newest date [here](https://github.com/SuhasBharadwajK/block_em_up/tree/master/apk), download it into your Android device and install it. And yes, it's only for Android because iOS is for losers anyway.
 
