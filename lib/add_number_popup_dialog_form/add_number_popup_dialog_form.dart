@@ -17,10 +17,13 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   final _textController = TextEditingController();
 
   bool _isEmpty = false;
-  bool _isTouched = false;
-  bool _isInvalidNumber = false;
   bool _isTextBoxFocused = false;
   bool _didKeydownHappen = false;
+  bool _isSubmitted = false;
+
+  bool get _isInvalidNumber {
+    return false;
+  }
 
   String get _invalidMessage {
     return this._textController.text.isEmpty ? 'Please enter some text' : this._isInvalidNumber ? 'Please enter a valid number' : null;
@@ -42,6 +45,7 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             alignment: Alignment.center,
             child: TextFormField(
               focusNode: _textFieldFocusNode,
+              autofocus: true,
               controller: _textController,
               keyboardType: TextInputType.phone,
               decoration: new InputDecoration(
@@ -55,7 +59,7 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
                   borderRadius: BorderRadius.circular(5),
                 ),
                 enabledBorder: new OutlineInputBorder(
-                  borderSide: BorderSide(color: this._isEmpty && this._isTouched ? Colors.red : Colors.grey, width: 2.0),
+                  borderSide: BorderSide(color: this._isEmpty && this._isSubmitted ? Colors.red : Colors.grey, width: 2.0),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 focusedBorder:OutlineInputBorder(
@@ -75,6 +79,10 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
             alignment: Alignment.bottomCenter,
             child: RaisedButton(
               onPressed: () {
+                setState(() {
+                  this._isSubmitted = true;
+                });
+
                 if (_formKey.currentState.validate()) {
                   this.addNewNumberCallback(this._textController.text);
                   Navigator.pop(context);
@@ -95,14 +103,11 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   _onFocusNodeEvent() {
     setState(() {
       this._isTextBoxFocused = !this._isTextBoxFocused;
-      if (!this._isTouched) {
-        this._isTouched = true;
-      }
     });
   }
 
   _onTextChangeEventHandler() {
-    if (this._isTouched) {
+    if (this._didKeydownHappen || this._isSubmitted) {
       this._formKey.currentState.validate();
     }
 
@@ -111,10 +116,6 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
 
       if (this._textController.text.isNotEmpty) {
         this._didKeydownHappen = true;
-
-        if (!this._isTouched) {
-          this._isTouched = true;
-        }
       }
     });
   }
@@ -128,6 +129,6 @@ class AddNumberToBlockFormState extends State<AddNumberToBlockForm> {
   }
 
   MaterialColor _getInputColor() {
-    return this._isEmpty && this._didKeydownHappen ? Colors.red : this._isTextBoxFocused ? Colors.blue : Colors.grey;
+    return this._isEmpty && (this._didKeydownHappen || this._isSubmitted) ? Colors.red : this._isTextBoxFocused ? Colors.blue : Colors.grey;
   }
 }
