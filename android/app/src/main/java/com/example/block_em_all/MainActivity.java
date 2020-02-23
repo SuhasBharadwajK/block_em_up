@@ -84,9 +84,12 @@ public class MainActivity extends FlutterActivity {
 
   private void refreshBlockedNumbers(ArrayList<HashMap> blockedNumbersMap) {
     DBHelper helper = DBHelper.getCurrentInstance(this);
+    ArrayList<BlockedNumber> numbers = new ArrayList();
 
     for (HashMap value: blockedNumbersMap) {
-      helper.appendNumber(new BlockedNumber((String)value.get("blockingPattern"), (boolean) value.get("isBlockingActive")));
+      numbers.add(new BlockedNumber((String)value.get("blockingPattern"), (boolean) value.get("isBlockingActive")));
     }
+
+    helper.setNumbers(numbers);
   }
 }

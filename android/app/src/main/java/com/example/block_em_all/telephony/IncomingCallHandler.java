@@ -15,31 +15,17 @@ import androidx.annotation.RequiresApi;
 import com.example.block_em_all.data.DBHelper;
 import com.example.block_em_all.models.BlockedNumber;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class IncomingCallHandler extends BroadcastReceiver {
 
-    private ArrayList<BlockedNumber> blockedNumbers;
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        DBHelper dbHelper = DBHelper.getCurrentInstance(context);
 
         try {
-            if (dbHelper == null) {
-                dbHelper = new DBHelper(context);
-            }
-
-            this.blockedNumbers = dbHelper.getAllBlockedNumbers();
-
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)) {
                 TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
-                Method m = tm.getClass().getDeclaredMethod("getITelephony");
-
-                m.setAccessible(true);
 
                 tm.listen(new PhoneStateListener() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -59,7 +45,7 @@ public class IncomingCallHandler extends BroadcastReceiver {
     private void callStateChangeHandler(int state, String phoneNumber, Context context) {
         try {
             TelecomManager telecomManager = (TelecomManager) context.getSystemService(Context.TELECOM_SERVICE);
-            if (phoneNumber != null && !phoneNumber.isEmpty() && state != 0 && this.isNumberBlocked(phoneNumber) && context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (phoneNumber != null && !phoneNumber.isEmpty() && state != 0 && this.isNumberBlocked(context, phoneNumber) && context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 telecomManager.endCall();
             }
         } catch (Exception e) {
@@ -67,8 +53,11 @@ public class IncomingCallHandler extends BroadcastReceiver {
         }
     }
 
-    private boolean isNumberBlocked(String incomingNumber) {
-        for (BlockedNumber blockedNumber: this.blockedNumbers) {
+    private boolean isNumberBlocked(Context context, String incomingNumber) {
+        DBHelper dbHelper = DBHelper.getCurrentInstance(context);
+        ArrayList<BlockedNumber> blockedNumbers = dbHelper.getAllBlockedNumbers();
+
+        for (BlockedNumber blockedNumber: blockedNumbers) {
             if (blockedNumber.isBlockingActive && (incomingNumber.startsWith(blockedNumber.blockingPattern) || incomingNumber.equals(blockedNumber.blockingPattern))) {
                 return true;
             }

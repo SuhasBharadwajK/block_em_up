@@ -58,7 +58,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     this._blockedNumbersService.insertNewPatternOrNumber(numberOrPatternToBlock).then((insertedId) {
       this.getBlockedNumbersCallback().then((blockedNumbers) {
 
-        refreshRogueRoster([blockedNumbers.last]);
+        refreshRogueRoster(blockedNumbers);
 
         this.setState(() {
           this._blockedNumbers = blockedNumbers;
@@ -68,7 +68,10 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   }
 
   void refreshRogueRoster(List<BlockedNumber> blockedNumbers) {
-    methodChannel.invokeMethod(AndroidMethodNames.RefreshBlockList, {"blockedNumbers": blockedNumbers.map((b) => {"blockingPattern": b.blockingPattern, "isBlockingActive": b.isBlockingActive}).toList()});
+    methodChannel.invokeMethod(AndroidMethodNames.RefreshBlockList, {
+      "blockedNumbers": blockedNumbers.map((b) => {"blockingPattern": b.blockingPattern, "isBlockingActive": b.isBlockingActive}).toList(),
+      }
+    );
   }
 
   Future<List<BlockedNumber>> getBlockedNumbersCallback() async {
@@ -165,6 +168,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     blockedNumber.isBlockingActive = status;
     this._blockedNumbersService.updateBlockedNumber(blockedNumber).then((rowsAffected) {
       this._showSnackBar("Blocking of ${blockedNumber.blockingPattern} has been ${status ? "activated" : "deactivated"}", context);
+      this.refreshRogueRoster(this._blockedNumbers);
       setState(() {
       });
     });
@@ -173,9 +177,9 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   void _deleteBlockedNumber(BlockedNumber number, BuildContext context) {
     this._blockedNumbersService.deleteBlockedNumber(id: number.id).then((rowsAffected) {
       this._showSnackBar("${number.blockingPattern} has been deleted from your block list", context);
-
       this.setState(() {
         this._blockedNumbers.removeWhere((n) => n.id == number.id);
+        this.refreshRogueRoster(this._blockedNumbers);
       });
     });
   }

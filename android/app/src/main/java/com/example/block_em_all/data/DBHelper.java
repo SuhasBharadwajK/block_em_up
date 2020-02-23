@@ -76,11 +76,15 @@ public class DBHelper extends SQLiteOpenHelper {
         return blockedNumbers;
     }
 
-    public void appendNumber(BlockedNumber newNumber) {
+    public void appendNumbers(ArrayList<BlockedNumber> numbers) {
         if (blockedNumbers == null) {
             blockedNumbers = new ArrayList();
         }
 
-        blockedNumbers.add(newNumber);
+        blockedNumbers.addAll(numbers);
+    }
+
+    public void setNumbers(ArrayList<BlockedNumber> numbers) {
+        blockedNumbers = numbers;
     }
 }
