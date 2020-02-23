@@ -38,4 +38,8 @@ class DataService {
   Future<int> delete(int id, String tableName) async {
     return await (await this.db).delete(tableName, where: "id = ?", whereArgs: [id]);
   }
+
+  Future<int> update(DataEntity dataEntity, String tableName) async {
+    return await (await this.db).update(tableName, dataEntity.toMap(), where: "id = ?", whereArgs: [dataEntity.id]);
+  }
 }

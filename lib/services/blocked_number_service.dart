@@ -29,6 +29,8 @@ class BlockedNumbersService {
         id: maps[i]['id'],
         blockingPattern: maps[i]['blockingPattern'],
         isBlockingActive: maps[i]['isBlockingActive'] == 1,
+        dateCreated: DateTime.parse(maps[i]['dateCreated']),
+        dateModified: DateTime.parse(maps[i]['dateModified']),
       );
     });
   }
@@ -40,5 +42,17 @@ class BlockedNumbersService {
     }
 
     return await this._dataService.delete(id, this._tableName);
+  }
+
+  Future<int> updateBlockedNumber(BlockedNumber number) async {
+    var recordToUpdate = BlockedNumber(
+      id: number.id,
+      blockingPattern: number.blockingPattern,
+      isBlockingActive: number.isBlockingActive,
+      dateCreated: number.dateCreated,
+      dateModified: DateTime.now()
+    );
+
+    return await this._dataService.update(recordToUpdate, this._tableName);
   }
 }

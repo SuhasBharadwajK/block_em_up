@@ -1,8 +1,10 @@
 abstract class DataEntity {
-  final DateTime dateCreated;
-  final DateTime dateModified;
 
-  DataEntity(this.dateCreated, this.dateModified);
+  final int id;
+  DateTime dateCreated;
+  DateTime dateModified;
+
+  DataEntity(this.id, this.dateCreated, this.dateModified);
 
   Map<String, dynamic> toMap();
 }

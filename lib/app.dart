@@ -49,7 +49,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
       appBar: AppBar(
         title: const Text('The Blocked Ones'),
       ),
-      body: this._buildBlockedNumbersList(),
+      body: this._buildBlockedNumbersList(context),
       floatingActionButton: AddNumberButton(addNewNumberCallback),
     );
   }
@@ -75,16 +75,16 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     return this._blockedNumbersService.getBlockedNumbers();
   }
 
-  Widget _buildBlockedNumbersList() {
+  Widget _buildBlockedNumbersList(BuildContext context) {
     return ListView.builder(
       itemCount: this._blockedNumbers.length,
       itemBuilder: (context, i) {
-        return this._buildRow(this._blockedNumbers[i]);
+        return this._buildRow(this._blockedNumbers[i], context);
       }
     );
   }
 
-  Widget _buildRow(BlockedNumber blockedNumber) {
+  Widget _buildRow(BlockedNumber blockedNumber, BuildContext context) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
@@ -109,6 +109,10 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
               blockedNumber.blockingPattern,
               style: _biggerFont,
             ),
+            trailing: Switch(
+              value: blockedNumber.isBlockingActive,
+              onChanged: (bool state) => this._toggleBlockingNumber(state, blockedNumber, context),
+            ),
           ),
         ),
       ),
@@ -117,13 +121,13 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
           caption: "Delete",
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () => this._showDeleteConfirmationDialog(blockedNumber),
+          onTap: () => this._showDeleteConfirmationDialog(blockedNumber, context),
         )
       ],
     );
   }
 
-  void _showDeleteConfirmationDialog(BlockedNumber number) {
+  void _showDeleteConfirmationDialog(BlockedNumber number, BuildContext appBuildContext) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -144,7 +148,7 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
             ),
             RaisedButton(
               onPressed: () {
-                this._deleteBlockedNumber(number);
+                this._deleteBlockedNumber(number, appBuildContext);
                 Navigator.of(context).pop();
               },
               color: Colors.red,
@@ -157,8 +161,19 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
     );
   }
 
-  void _deleteBlockedNumber(BlockedNumber number) {
+  void _toggleBlockingNumber(bool status, BlockedNumber blockedNumber, BuildContext context) {
+    blockedNumber.isBlockingActive = status;
+    this._blockedNumbersService.updateBlockedNumber(blockedNumber).then((rowsAffected) {
+      this._showSnackBar("Blocking of ${blockedNumber.blockingPattern} has been ${status ? "activated" : "deactivated"}", context);
+      setState(() {
+      });
+    });
+  }
+
+  void _deleteBlockedNumber(BlockedNumber number, BuildContext context) {
     this._blockedNumbersService.deleteBlockedNumber(id: number.id).then((rowsAffected) {
+      this._showSnackBar("${number.blockingPattern} has been deleted from your block list", context);
+
       this.setState(() {
         this._blockedNumbers.removeWhere((n) => n.id == number.id);
       });
@@ -174,5 +189,14 @@ class BlockEmAllAppState extends State<BlockEmAllApp> {
   Color _getRandomColor() {
     RandomColor _randomColor = RandomColor();
     return _randomColor.randomColor(colorHue: ColorHue.red);
+  }
+
+  void _showSnackBar(String message, BuildContext context) {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message), 
+        duration: const Duration(seconds: 2),
+      )
+    );
   }
 }
